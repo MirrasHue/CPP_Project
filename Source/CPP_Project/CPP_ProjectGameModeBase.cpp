@@ -3,6 +3,8 @@
 
 #include "CPP_ProjectGameModeBase.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Blueprint/UserWidget.h"
+
 
 ACPP_ProjectGameModeBase::ACPP_ProjectGameModeBase()
 {
@@ -10,4 +12,17 @@ ACPP_ProjectGameModeBase::ACPP_ProjectGameModeBase()
         PlayerClassPawnFinder(TEXT("Class'/Script/CPP_Project.MainWarrior'"));
         
     DefaultPawnClass = PlayerClassPawnFinder.Class;
+}
+
+void ACPP_ProjectGameModeBase::BeginPlay()
+{
+    Super::BeginPlay();
+
+    if(HUDWidget)
+    {
+        HUD = CreateWidget<UUserWidget>(GetWorld(), HUDWidget);
+
+        HUD->AddToViewport();
+        HUD->SetVisibility(ESlateVisibility::Visible);
+    }
 }

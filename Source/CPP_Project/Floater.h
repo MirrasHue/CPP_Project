@@ -7,6 +7,7 @@
 #include "Floater.generated.h"
 
 class UStaticMeshComponent;
+class USphereComponent;
 
 UCLASS()
 class CPP_PROJECT_API AFloater : public AActor
@@ -17,13 +18,16 @@ public:
 	// Sets default values for this actor's properties
 	AFloater();
 
-	UPROPERTY(EditAnywhere, Category = "StaticMesh")
+	UPROPERTY(EditAnywhere, Category = "Floater")
 	UStaticMeshComponent* MyMesh;
 
-	UPROPERTY(EditAnywhere, Category = "Floating")
+	UPROPERTY(EditAnywhere, Category = "Floater")
+	USphereComponent* Collision;
+
+	UPROPERTY(EditAnywhere, Category = "Floater")
 	bool bShouldFloat;
 
-	UPROPERTY(EditAnywhere, Category = "Floating")
+	UPROPERTY(EditAnywhere, Category = "Floater")
 	FVector InitialDirection;
 
 protected:

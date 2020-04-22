@@ -4,6 +4,7 @@
 #include "Floater.h"
 #include "UnrealMathUtility.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SphereComponent.h"
 
 // Sets default values
 AFloater::AFloater()
@@ -12,12 +13,12 @@ AFloater::AFloater()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	MyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MyMesh"));
-	if(SetRootComponent(MyMesh))
-	{
-		
-	}
 
+	Collision = CreateDefaultSubobject<USphereComponent>(TEXT("Collision"));
+	RootComponent = Collision;
+
+	MyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MyMesh"));
+	MyMesh->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -35,8 +36,8 @@ void AFloater::Tick(float DeltaTime)
 	{
 		FHitResult HitResult;
 
-		/* This function will add a certain amount to this actor's location every Tick 
-		   If bSweep is set to true, collision will be enable even though SimulatePhysics was turned off */
+		/* This function will add a certain amount to this actor's location every Tick. If bSweep 
+		is set to true, collision will be enabled even though SimulatePhysics was turned off */
 		AddActorLocalOffset(InitialDirection, true, &HitResult);
 
 		/* Now, if we want to know the location of a collision, we can do this: */
@@ -45,7 +46,5 @@ void AFloater::Tick(float DeltaTime)
 		UE_LOG(LogTemp, Warning, TEXT("Hit Location: X = %f | Y = %f | Z = %f"), 
 				HitLocation.X, HitLocation.Y, HitLocation.Z);
 	}
-	
-
 }
 

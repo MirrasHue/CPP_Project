@@ -52,10 +52,10 @@ void ACritter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	FVector MoveDirection = ForwardVelocity + RightVelocity;
-	/* Comment this line below if you want to move the Pawn in all directions */
+	// Comment this line below if you want to move the Pawn in all directions
 	MoveDirection.Z = 0.f;
-	/* Clamp size so that doesn't cause faster movement in diagonal directions */
-	FVector NewLocation = GetActorLocation() + (MoveDirection.GetClampedToSize(-1.f, 1.f) * MoveSpeed * DeltaTime);
+	// Get the normalized vector so it will not cause faster movement in diagonal directions
+	FVector NewLocation = GetActorLocation() + (MoveDirection.GetSafeNormal() * MoveSpeed * DeltaTime);
 	SetActorLocation(NewLocation);
 
 	FRotator SpringArmRotation = SpringArm->GetComponentRotation();

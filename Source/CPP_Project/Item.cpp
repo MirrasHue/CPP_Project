@@ -4,6 +4,9 @@
 #include "Item.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 // Sets default values
 AItem::AItem()
@@ -13,10 +16,17 @@ AItem::AItem()
 
 	CollisionVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionVolume"));
 	CollisionVolume->InitBoxExtent(FVector(60.f, 60.f, 60.f));
+	CollisionVolume->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	CollisionVolume->SetCollisionObjectType(ECollisionChannel::ECC_WorldStatic);
+	CollisionVolume->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	CollisionVolume->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 	RootComponent = CollisionVolume;
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	Mesh->SetupAttachment(CollisionVolume);
+	Mesh->SetupAttachment(RootComponent);
+
+	IdleParticle = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("IdleParticle"));
+	IdleParticle->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -24,8 +34,8 @@ void AItem::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	CollisionVolume->OnComponentBeginOverlap.AddDynamic(this, &AItem::OnOverlapBegin);
-	CollisionVolume->OnComponentEndOverlap.AddDynamic(this, &AItem::OnOverlapEnd);
+	CollisionVolume->OnComponentBeginOverlap.AddDynamic(this, &AItem::OnBeginOverlap);
+	CollisionVolume->OnComponentEndOverlap.AddDynamic(this, &AItem::OnEndOverlap);
 }
 
 // Called every frame
@@ -35,12 +45,21 @@ void AItem::Tick(float DeltaTime)
 
 }
 
-void AItem::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AItem::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Super::OnOverlapBegin"));
+	UE_LOG(LogTemp, Warning, TEXT("Super::OnBeginOverlap"));
+
+	if(ContactParticle && ContactSound)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ContactParticle, GetActorLocation(), FRotator(0.f), true);
+
+		UGameplayStatics::PlaySoundAtLocation(this, ContactSound, GetActorLocation());
+	}
+
+	Destroy();
 }
 
-void AItem::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void AItem::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Super::OnOverlapEnd"));
+	UE_LOG(LogTemp, Warning, TEXT("Super::OnEndOverlap"));
 }

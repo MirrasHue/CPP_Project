@@ -6,20 +6,22 @@
 
 void UMyAnimInstance::NativeInitializeAnimation()
 {
+    Super::NativeInitializeAnimation();
+
     if(!Pawn)
         Pawn = TryGetPawnOwner();
 }
 
-void UMyAnimInstance::UpdateAnimations()
+void UMyAnimInstance::NativeUpdateAnimation(float DeltaTime)
 {
-    if(Pawn)
-    {
-        FVector Speed = Pawn->GetVelocity();
-        // Get the magnitude of horizontal velocity
-        MovementSpeed = FVector(Speed.X, Speed.Y, 0.f).Size();
+    Super::NativeUpdateAnimation(DeltaTime);
 
-        bInAir = Pawn->GetMovementComponent()->IsFalling();
-    }
-    else
-        Pawn = TryGetPawnOwner();
+    if(!Pawn)
+        return;
+
+    FVector Speed = Pawn->GetVelocity();
+    // Get the magnitude of horizontal velocity
+    MovementSpeed = FVector(Speed.X, Speed.Y, 0.f).Size();
+
+    bInAir = Pawn->GetMovementComponent()->IsFalling();
 }

@@ -9,6 +9,9 @@
 
 class UBoxComponent;
 class UStaticMeshComponent;
+class UParticleSystemComponent;
+class UParticleSystem;
+class USoundCue;
 
 UCLASS()
 class CPP_PROJECT_API AItem : public AActor
@@ -23,21 +26,28 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, Category = "Entrance Switch")
+	UPROPERTY(EditAnywhere, Category = "Item | Collision")
 	UBoxComponent* CollisionVolume;
 
-	UPROPERTY(EditAnywhere, Category = "Entrance Switch")
+	UPROPERTY(EditAnywhere, Category = "Item | Mesh")
 	UStaticMeshComponent* Mesh;
+
+	UPROPERTY(EditAnywhere, Category = "Item | Particle")
+	UParticleSystemComponent* IdleParticle;
+
+	UPROPERTY(EditAnywhere, Category = "Item | Particle")
+	UParticleSystem* ContactParticle;
+
+	UPROPERTY(EditAnywhere, Category = "Item | Sound")
+	USoundCue* ContactSound;
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION()
+	virtual void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
-	virtual void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-	virtual void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
+	virtual void OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 };

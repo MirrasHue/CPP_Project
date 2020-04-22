@@ -23,15 +23,21 @@ AMainWarrior::AMainWarrior()
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> 
 		SkeletalMesh(TEXT("SkeletalMesh'/Game/Character/SkeletalMesh/paladin_j_nordstrom.paladin_j_nordstrom'"));
 
+	static ConstructorHelpers::FObjectFinder<UClass>
+		Anim_BP(TEXT("AnimBlueprint'/Game/Character/Blueprints/Anim_BP.Anim_BP_C'"));
+
 	// Don't rotate the character when the controller rotates. Let that just affect the camera
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 
-	if(SkeletalMesh.Succeeded())
+	if(SkeletalMesh.Succeeded() && Anim_BP.Succeeded())
 	{
-		// Set the skeletal mesh we had find with FObjectFinder 
+		// Set the skeletal mesh we had find with FObjectFinder
 		GetMesh()->SetSkeletalMesh(SkeletalMesh.Object);
+
+		// Set the Anim_BP we had find with FObjectFinder
+		GetMesh()->SetAnimInstanceClass(Anim_BP.Object);
 		
 		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -88.f));
 		GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
@@ -84,12 +90,9 @@ void AMainWarrior::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMainWarrior::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMainWarrior::MoveRight);
-	// Look up/down with the camera
-	PlayerInputComponent->BindAxis("CameraPitch", this, &AMainWarrior::AddControllerPitchInput);
-	// Turn the camera around the character
-	PlayerInputComponent->BindAxis("CameraYaw", this, &AMainWarrior::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("CameraPitch", this, &AMainWarrior::AddControllerPitchInput);// Look up/down with the camera
+	PlayerInputComponent->BindAxis("CameraYaw", this, &AMainWarrior::AddControllerYawInput);// Turn the camera around the character
 
-	
 	// ACTION BINDINGS
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMainWarrior::Jump);
@@ -98,10 +101,9 @@ void AMainWarrior::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void AMainWarrior::MoveForward(float Input)
 {
+	// Find out which way is forward
 	if(Controller && Input)
 	{
-		// Find out which way is forward
-
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
 
@@ -114,10 +116,9 @@ void AMainWarrior::MoveForward(float Input)
 
 void AMainWarrior::MoveRight(float Input)
 {
+	// Find out which way is right
 	if(Controller && Input)
 	{
-		// Find out which way is right
-
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
 

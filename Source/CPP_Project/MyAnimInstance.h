@@ -26,8 +26,5 @@ public:
 	class APawn* Pawn;
 
 	virtual void NativeInitializeAnimation() override;
-
-	UFUNCTION(BlueprintCallable)
-	void UpdateAnimations();
-	
+	virtual void NativeUpdateAnimation(float DeltaTime) override;	
 };
