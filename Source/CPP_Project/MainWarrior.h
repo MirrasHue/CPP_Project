@@ -9,6 +9,18 @@
 class USpringArmComponent;
 class UCameraComponent;
 
+enum class EMovementState : uint8
+{
+	NotSprinting,
+	Sprinting
+};
+
+enum class EStaminaState : uint8
+{
+	Normal,
+	Exhausted
+};
+
 UCLASS()
 class CPP_PROJECT_API AMainWarrior : public ACharacter
 {
@@ -38,12 +50,17 @@ public:
 
 	// Called for Forward/Backward movement
 	void MoveForward(float Input);
-	// Called for Side to Side movement
+	// Called for Left/Right movement
 	void MoveRight(float Input);
+
+	inline void SprintKey(); // Used for both sprint key pressed and released
+
+	void SetMovementState(EMovementState State); // Also sets the movement speed based on the state
+	void SetStaminaState(EStaminaState State) { StaminaState = State; }
 
 public:
 
-//////////////////  Player's Attributes  //////////////////
+//////////////////  Player's Properties  //////////////////
 
 	UPROPERTY(EditAnywhere, Category = "Player | Health")
 	float Health = 100.f;
@@ -56,4 +73,24 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Player | Stamina")
 	float MaxStamina = 100.f;
+
+	UPROPERTY(EditAnywhere, Category = "Player | Stamina")
+	float StaminaDrainRate = 10.f; // units / s
+
+	UPROPERTY(EditAnywhere, Category = "Player | Stamina")
+	float StaminaFillRate = 10.f; // units / s
+
+	UPROPERTY(EditAnywhere, Category = "Player | Stamina")
+	float MinSprintStamina = 20.f; // Minimum stamina to be able to sprint again
+
+	UPROPERTY(EditAnywhere, Category = "Player | Movement")
+	float WalkSpeed = 200.f; // cm / s
+
+	UPROPERTY(EditAnywhere, Category = "Player | Movement")
+	float SprintSpeed = 600.f; // cm / s
+
+	bool bSprintKeyDown = false;
+
+	EMovementState MovementState = EMovementState::NotSprinting;
+	EStaminaState StaminaState = EStaminaState::Normal;
 };

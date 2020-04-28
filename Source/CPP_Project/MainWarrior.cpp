@@ -77,6 +77,44 @@ void AMainWarrior::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	float dtStaminaDrain = StaminaDrainRate * DeltaTime;
+	float dtStaminaFill = StaminaFillRate * DeltaTime;
+
+	switch(StaminaState)
+	{
+	case EStaminaState::Normal
+			:
+		if(bSprintKeyDown)
+		{
+			if(Stamina > 1.f)
+				SetMovementState(EMovementState::Sprinting);
+			else
+				SetStaminaState(EStaminaState::Exhausted);
+
+			// Only decrement stamina if the player has a speed of at 
+			// least WalkSpeed on the XY plane, otherwise increment it
+			FVector Vel = GetVelocity();
+			Stamina -= FVector(Vel.X, Vel.Y, 0.f).Size() > WalkSpeed ? dtStaminaDrain : -dtStaminaFill;
+		}
+		else
+		{
+			SetMovementState(EMovementState::NotSprinting);
+			Stamina += dtStaminaFill;
+		}
+		break;
+	
+	case EStaminaState::Exhausted
+			:
+		SetMovementState(EMovementState::NotSprinting);
+		Stamina += dtStaminaFill;
+
+		if(Stamina > MinSprintStamina)
+			SetStaminaState(EStaminaState::Normal);
+
+		break;
+	}
+
+	Stamina = FMath::Clamp(Stamina, 0.f, MaxStamina);
 }
 
 // Called to bind functionality to input
@@ -90,13 +128,16 @@ void AMainWarrior::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMainWarrior::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMainWarrior::MoveRight);
-	PlayerInputComponent->BindAxis("CameraPitch", this, &AMainWarrior::AddControllerPitchInput);// Look up/down with the camera
-	PlayerInputComponent->BindAxis("CameraYaw", this, &AMainWarrior::AddControllerYawInput);// Turn the camera around the character
+	PlayerInputComponent->BindAxis("CameraPitch", this, &ACharacter::AddControllerPitchInput);// Look up/down with the camera
+	PlayerInputComponent->BindAxis("CameraYaw", this, &ACharacter::AddControllerYawInput);// Rotate the camera around the character
 
 	// ACTION BINDINGS
 
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMainWarrior::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AMainWarrior::StopJumping);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AMainWarrior::SprintKey);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AMainWarrior::SprintKey);
 }
 
 void AMainWarrior::MoveForward(float Input)
@@ -127,4 +168,19 @@ void AMainWarrior::MoveRight(float Input)
 
 		AddMovementInput(Direction, Input);
 	}
+}
+
+void AMainWarrior::SprintKey()
+{
+	bSprintKeyDown = !bSprintKeyDown;
+}
+
+void AMainWarrior::SetMovementState(EMovementState State)
+{
+	MovementState = State;
+
+	if(State == EMovementState::Sprinting)
+		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
+	else
+		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 }

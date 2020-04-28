@@ -19,9 +19,9 @@ void UMyAnimInstance::NativeUpdateAnimation(float DeltaTime)
     if(!Pawn)
         return;
 
-    FVector Speed = Pawn->GetVelocity();
+    FVector Vel = Pawn->GetVelocity();
     // Get the magnitude of horizontal velocity
-    MovementSpeed = FVector(Speed.X, Speed.Y, 0.f).Size();
+    MovementSpeed = FVector(Vel.X, Vel.Y, 0.f).Size();
 
     bInAir = Pawn->GetMovementComponent()->IsFalling();
 }
