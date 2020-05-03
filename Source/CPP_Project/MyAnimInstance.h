@@ -14,17 +14,25 @@ class CPP_PROJECT_API UMyAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
 
-public:
-
-	UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = Movement)
-	float MovementSpeed;
-
-	UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = Movement)
-	bool bInAir;
-
-	UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = Movement)
-	class APawn* Pawn;
+protected:
 
 	virtual void NativeInitializeAnimation() override;
-	virtual void NativeUpdateAnimation(float DeltaTime) override;	
+	virtual void NativeUpdateAnimation(float DeltaTime) override;
+
+	UFUNCTION()
+	void AnimNotify_AttackEnd(); // Called by the engine whenever this notifier is reached in our CombatMontage
+
+protected:
+
+	UPROPERTY()
+	class AMainWarrior* Player;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	float MovementSpeed;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	bool bInAir;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	bool bIsArmed;
 };

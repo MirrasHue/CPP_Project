@@ -44,16 +44,16 @@ AMainWarrior::AMainWarrior()
 		GetMesh()->SetupAttachment(RootComponent);
 		
 		// Create a Spring Arm (pulls in towards the player if there is a collision)
-		SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
-		SpringArmComponent->TargetArmLength = 500.f; // The camera follows at this distance behind the character
-		SpringArmComponent->bUsePawnControlRotation = true; // Rotate the arm based on the controller
-		SpringArmComponent->SetupAttachment(RootComponent);
+		SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
+		SpringArm->TargetArmLength = 500.f; // The camera follows at this distance behind the character
+		SpringArm->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+		SpringArm->SetupAttachment(RootComponent);
 
 		// Create a Camera
-		CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
+		Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 		// Attach the camera to the end of the Spring Arm and let the arm adjust to match the controller orientation
-		CameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
-		CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
+		Camera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+		Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 
 		// Configure character movement
 		GetCharacterMovement()->bOrientRotationToMovement = true; // Character turns
@@ -91,21 +91,20 @@ void AMainWarrior::Tick(float DeltaTime)
 			else
 				SetStaminaState(EStaminaState::Exhausted);
 
-			// Only decrement stamina if the player has a speed of at 
-			// least WalkSpeed on the XY plane, otherwise increment it
+			// Decrease the stamina based on a minimum speed
 			FVector Vel = GetVelocity();
 			Stamina -= FVector(Vel.X, Vel.Y, 0.f).Size() > WalkSpeed ? dtStaminaDrain : -dtStaminaFill;
 		}
 		else
 		{
-			SetMovementState(EMovementState::NotSprinting);
+			SetMovementState(EMovementState::Walking);
 			Stamina += dtStaminaFill;
 		}
 		break;
 	
 	case EStaminaState::Exhausted
 			:
-		SetMovementState(EMovementState::NotSprinting);
+		SetMovementState(EMovementState::Walking);
 		Stamina += dtStaminaFill;
 
 		if(Stamina > MinSprintStamina)
@@ -138,6 +137,8 @@ void AMainWarrior::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AMainWarrior::SprintKey);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AMainWarrior::SprintKey);
+
+	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &AMainWarrior::Attack);
 }
 
 void AMainWarrior::MoveForward(float Input)
@@ -183,4 +184,17 @@ void AMainWarrior::SetMovementState(EMovementState State)
 		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
 	else
 		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+}
+
+void AMainWarrior::Attack()
+{
+	if(CombatMontage && !bIsAttacking && CurrentWeapon) // For now the player can attack only with a weapon
+	{
+		bIsAttacking = true;
+
+		// Currently there are 2 animations for attack
+		FString AttackSection = "Attack_" + FString::FromInt(FMath::RandRange(1, 2));
+
+		PlayAnimMontage(CombatMontage, 1.f, FName(*AttackSection));
+	}
 }

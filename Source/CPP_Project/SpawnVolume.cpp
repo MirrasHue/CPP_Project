@@ -28,7 +28,7 @@ void ASpawnVolume::Tick(float DeltaTime)
 
 }
 
-FVector ASpawnVolume::GetPointToSpawn()
+FVector ASpawnVolume::GetPointToSpawn() const
 {
 	FVector BoxOrigin = SpawningBox->GetComponentLocation();
 	FVector BoxExtent = SpawningBox->GetScaledBoxExtent();

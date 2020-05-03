@@ -17,20 +17,22 @@ public:
 	// Sets default values for this actor's properties
 	ASpawnVolume();
 
-	UPROPERTY(EditAnywhere, Category = "Spawner")
-	UBoxComponent* SpawningBox;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spawner")
-	TSubclassOf<class APawn> PawnToSpawn;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintPure, Category = "Spawner")
+	FVector GetPointToSpawn() const;
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION(BlueprintPure, Category = "Spawner")
-	FVector GetPointToSpawn();
+protected:
+
+	UPROPERTY(EditAnywhere, Category = "Spawner")
+	UBoxComponent* SpawningBox;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spawner")
+	TSubclassOf<class APawn> PawnToSpawn;
 };

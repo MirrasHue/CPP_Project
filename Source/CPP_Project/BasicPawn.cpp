@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Critter.h"
+#include "BasicPawn.h"
 #include "Components/StaticMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
@@ -9,20 +9,20 @@
 #include "GameFramework/SpringArmComponent.h"
 
 // Sets default values
-ACritter::ACritter()
+ABasicPawn::ABasicPawn()
 		:
-	MoveSpeed(100.f)
+	MoveSpeed(300.f)
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
-	SphereComponent->InitSphereRadius(52.f);
-	SphereComponent->SetCollisionProfileName(TEXT("Pawn"));
-	RootComponent = SphereComponent;
+	Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
+	Sphere->InitSphereRadius(52.f);
+	Sphere->SetCollisionProfileName(TEXT("Pawn"));
+	RootComponent = Sphere;
 
-	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
-	MeshComponent->SetupAttachment(RootComponent);
+	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
+	Mesh->SetupAttachment(RootComponent);
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->RelativeRotation = FRotator(-25.f, 0.f, 0.f);
@@ -31,7 +31,7 @@ ACritter::ACritter()
 	SpringArm->bEnableCameraRotationLag = true;
 	SpringArm->CameraLagSpeed = 20.f;
 	SpringArm->CameraRotationLagSpeed = 20.f;
-	SpringArm->SetupAttachment(MeshComponent);
+	SpringArm->SetupAttachment(Mesh);
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
@@ -40,14 +40,14 @@ ACritter::ACritter()
 }
 
 // Called when the game starts or when spawned
-void ACritter::BeginPlay()
+void ABasicPawn::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
 
 // Called every frame
-void ACritter::Tick(float DeltaTime)
+void ABasicPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
@@ -65,18 +65,19 @@ void ACritter::Tick(float DeltaTime)
 }
 
 // Called to bind functionality to input
-void ACritter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void ABasicPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	PlayerInputComponent->BindAxis("MoveForward", this, &ACritter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &ACritter::MoveRight);
+
+	PlayerInputComponent->BindAxis("MoveForward", this, &ABasicPawn::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &ABasicPawn::MoveRight);
 	// Look up/down with the camera
-	PlayerInputComponent->BindAxis("CameraPitch", this, &ACritter::CameraPitch);
+	PlayerInputComponent->BindAxis("CameraPitch", this, &ABasicPawn::CameraPitch);
 	// Turn the camera around the character
-	PlayerInputComponent->BindAxis("CameraYaw", this, &ACritter::CameraYaw);
+	PlayerInputComponent->BindAxis("CameraYaw", this, &ABasicPawn::CameraYaw);
 }
 
-void ACritter::MoveForward(float Input)
+void ABasicPawn::MoveForward(float Input)
 {
 	// Find out which way is forward
 
@@ -89,7 +90,7 @@ void ACritter::MoveForward(float Input)
 	ForwardVelocity = ForwardVector * Input;
 }
 
-void ACritter::MoveRight(float Input)
+void ABasicPawn::MoveRight(float Input)
 {
 	// Find out which way is right
 
@@ -102,12 +103,12 @@ void ACritter::MoveRight(float Input)
 	RightVelocity = RightVector * Input;
 }
 
-void ACritter::CameraPitch(float AxisValue)
+void ABasicPawn::CameraPitch(float AxisValue)
 {
 	MouseInput.Y = AxisValue;
 }
 
-void ACritter::CameraYaw(float AxisValue)
+void ABasicPawn::CameraYaw(float AxisValue)
 {
 	MouseInput.X = AxisValue;
 }

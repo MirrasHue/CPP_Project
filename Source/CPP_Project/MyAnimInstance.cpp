@@ -3,25 +3,34 @@
 
 #include "MyAnimInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "MainWarrior.h"
 
 void UMyAnimInstance::NativeInitializeAnimation()
 {
     Super::NativeInitializeAnimation();
 
-    if(!Pawn)
-        Pawn = TryGetPawnOwner();
+    if(!Player)
+        Player = Cast<AMainWarrior>(TryGetPawnOwner());
 }
 
 void UMyAnimInstance::NativeUpdateAnimation(float DeltaTime)
 {
     Super::NativeUpdateAnimation(DeltaTime);
 
-    if(!Pawn)
+    if(!Player)
         return;
 
-    FVector Vel = Pawn->GetVelocity();
-    // Get the magnitude of horizontal velocity
-    MovementSpeed = FVector(Vel.X, Vel.Y, 0.f).Size();
+    FVector Vel = Player->GetVelocity();
+    
+    MovementSpeed = FVector(Vel.X, Vel.Y, 0.f).Size(); // Get the magnitude of horizontal velocity
 
-    bInAir = Pawn->GetMovementComponent()->IsFalling();
+    bInAir = Player->GetMovementComponent()->IsFalling();
+
+    bIsArmed = (Player->GetCurrentWeapon() != nullptr);
+}
+
+void UMyAnimInstance::AnimNotify_AttackEnd()
+{
+    if(Player)
+        Player->IsAttacking(false);
 }

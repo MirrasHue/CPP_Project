@@ -49,14 +49,12 @@ void AItem::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 {
 	UE_LOG(LogTemp, Warning, TEXT("Super::OnBeginOverlap"));
 
-	if(ContactParticle && ContactSound)
-	{
+	// We might need just one, or neither of them
+	if(ContactParticle)
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ContactParticle, GetActorLocation(), FRotator(0.f), true);
 
+	if(ContactSound)
 		UGameplayStatics::PlaySoundAtLocation(this, ContactSound, GetActorLocation());
-	}
-
-	Destroy();
 }
 
 void AItem::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)

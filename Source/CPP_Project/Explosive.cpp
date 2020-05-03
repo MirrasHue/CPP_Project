@@ -13,6 +13,8 @@ void AExplosive::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
     Super::OnBeginOverlap(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 
 	UE_LOG(LogTemp, Warning, TEXT("AExplosive::OnBeginOverlap"));
+
+    Destroy();
 }
 
 void AExplosive::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
