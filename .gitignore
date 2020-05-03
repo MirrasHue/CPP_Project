@@ -2,4 +2,4 @@ Binaries
 Intermediate
 Saved
 .vscode
-CPP_Project.code-workspace
+*.code-workspace
