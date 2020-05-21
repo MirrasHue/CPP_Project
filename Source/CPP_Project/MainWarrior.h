@@ -86,6 +86,10 @@ public:
 
 //////////////////  Player's Properties  //////////////////
 
+	/*
+		Add Getters and Setters
+	*/
+
 	UPROPERTY(EditAnywhere, Category = "Player | Health")
 	float Health = 100.f;
 
