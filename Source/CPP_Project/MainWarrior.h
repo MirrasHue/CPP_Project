@@ -58,7 +58,7 @@ public:
 	FORCEINLINE void SetCurrentWeapon(AWeapon* Weapon) { CurrentWeapon = Weapon; }
 	FORCEINLINE AWeapon* GetCurrentWeapon() const { return CurrentWeapon; }
 
-	FORCEINLINE void IsAttacking(bool Attacking) { bIsAttacking = Attacking; }
+	FORCEINLINE void IsAttacking(bool IsAttacking) { bIsAttacking = IsAttacking; }
 
 protected:
 

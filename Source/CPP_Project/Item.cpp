@@ -47,7 +47,7 @@ void AItem::Tick(float DeltaTime)
 
 void AItem::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Super::OnBeginOverlap"));
+	//UE_LOG(LogTemp, Warning, TEXT("Super::OnBeginOverlap"));
 
 	// We might need just one, or neither of them
 	if(ContactParticle)
@@ -59,5 +59,5 @@ void AItem::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 
 void AItem::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Super::OnEndOverlap"));
+	//UE_LOG(LogTemp, Warning, TEXT("Super::OnEndOverlap"));
 }

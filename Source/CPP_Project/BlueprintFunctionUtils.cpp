@@ -5,34 +5,27 @@
 #include "Kismet/GameplayStatics.h"
 #include "MainWarrior.h"
 
+using BFU = UBlueprintFunctionUtils; // Just for short
 
-AMainWarrior* UBlueprintFunctionUtils::PlayerOwner = nullptr;
+AMainWarrior* BFU::Player = nullptr;
 
-/* Unfortunately it doesn't work here (also tried typedef), 
-   so I'll have to fully specify the player pointer...*/
-//using Player = UBlueprintFunctionUtils::PlayerOwner;
-
-/* ... or I can do this, but I'd prefer the solution with 'using' as
-   an alias rather than a new variable (a global one to be worse)*/
-auto Player = UBlueprintFunctionUtils::PlayerOwner;
-
-void UBlueprintFunctionUtils::InitPlayerOwner(UObject* WorldContextObject)
+void UBlueprintFunctionUtils::InitPlayerRef(UObject* WorldContextObject)
 {
-    Player = Cast<AMainWarrior>(UGameplayStatics::GetPlayerCharacter(WorldContextObject, 0));
+    BFU::Player = Cast<AMainWarrior>(UGameplayStatics::GetPlayerCharacter(WorldContextObject, 0));
 }
 
 float UBlueprintFunctionUtils::GetPlayerHealthPercent()
 {
-    if(! Player)
+    if(! BFU::Player)
         return 0.f;
 
-    return Player->Health / Player->MaxHealth;
+    return BFU::Player->Health / BFU::Player->MaxHealth;
 }
 
 float UBlueprintFunctionUtils::GetPlayerStaminaPercent()
 {
-    if(! Player)
+    if(! BFU::Player)
         return 0.f;
 
-    return Player->Stamina / Player->MaxStamina;
+    return BFU::Player->Stamina / BFU::Player->MaxStamina;
 }

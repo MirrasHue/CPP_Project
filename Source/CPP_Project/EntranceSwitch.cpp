@@ -45,7 +45,7 @@ void AEntranceSwitch::Tick(float DeltaTime)
 
 	if(bSwitchPressed)
 	{
-		if(CurrentEntranceDisplacement < MaxEntranceDisplacement)
+		if(CurrentEntranceDisplacement < MaxEntranceDisplacement) // Opens the entrance
 		{
 			Entrance->AddWorldOffset(EntranceOpenDirection * EntranceOpeningSpeed * DeltaTime);
 			CurrentEntranceDisplacement += EntranceOpeningSpeed * DeltaTime;
@@ -54,7 +54,7 @@ void AEntranceSwitch::Tick(float DeltaTime)
 	}
 	else
 	{
-		if(CurrentEntranceDisplacement > 0.f)
+		if(CurrentEntranceDisplacement > 0.f) // Closes the entrance
 		{
 			Entrance->AddWorldOffset(-EntranceOpenDirection * EntranceClosingSpeed * DeltaTime);
 			CurrentEntranceDisplacement -= EntranceClosingSpeed * DeltaTime;

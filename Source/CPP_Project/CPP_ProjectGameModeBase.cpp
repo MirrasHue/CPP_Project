@@ -8,21 +8,25 @@
 
 ACPP_ProjectGameModeBase::ACPP_ProjectGameModeBase()
 {
+    // Find and set MainWarrior_BP as the default pawn class
+
     static ConstructorHelpers::FClassFinder<APawn> 
-        PlayerClassPawnFinder(TEXT("Class'/Script/CPP_Project.MainWarrior'"));
+        PawnFinder(TEXT("Blueprint'/Game/Character/MainWarrior_BP.MainWarrior_BP_C'"));
         
-    DefaultPawnClass = PlayerClassPawnFinder.Class;
+    DefaultPawnClass = PawnFinder.Class;
 }
 
 void ACPP_ProjectGameModeBase::BeginPlay()
 {
     Super::BeginPlay();
 
-    if(HUDWidget)
-    {
-        HUD = CreateWidget<UUserWidget>(GetWorld(), HUDWidget);
+    if(!HUDWidget)
+        return;
 
-        HUD->AddToViewport();
-        HUD->SetVisibility(ESlateVisibility::Visible);
-    }
+    // Create the widget and make it visible on screen
+
+    HUD = CreateWidget<UUserWidget>(GetWorld(), HUDWidget);
+
+    HUD->AddToViewport();
+    HUD->SetVisibility(ESlateVisibility::Visible);
 }

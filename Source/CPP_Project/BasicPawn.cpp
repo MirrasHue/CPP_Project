@@ -58,6 +58,7 @@ void ABasicPawn::Tick(float DeltaTime)
 	FVector NewLocation = GetActorLocation() + (MoveDirection.GetSafeNormal() * MoveSpeed * DeltaTime);
 	SetActorLocation(NewLocation);
 
+	// Set the spring arm's rotation accordingly to the mouse input
 	FRotator SpringArmRotation = SpringArm->GetComponentRotation();
 	SpringArmRotation.Yaw += MouseInput.X;
 	SpringArmRotation.Pitch = FMath::Clamp(SpringArmRotation.Pitch += MouseInput.Y, -85.f, 5.f);
@@ -71,9 +72,11 @@ void ABasicPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ABasicPawn::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABasicPawn::MoveRight);
+
 	// Look up/down with the camera
 	PlayerInputComponent->BindAxis("CameraPitch", this, &ABasicPawn::CameraPitch);
-	// Turn the camera around the character
+
+	// Move the camera around the character
 	PlayerInputComponent->BindAxis("CameraYaw", this, &ABasicPawn::CameraYaw);
 }
 

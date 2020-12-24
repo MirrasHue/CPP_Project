@@ -24,45 +24,45 @@ AMainWarrior::AMainWarrior()
 		SkeletalMesh(TEXT("SkeletalMesh'/Game/Character/SkeletalMesh/paladin_j_nordstrom.paladin_j_nordstrom'"));
 
 	static ConstructorHelpers::FObjectFinder<UClass>
-		Anim_BP(TEXT("AnimBlueprint'/Game/Character/Blueprints/Anim_BP.Anim_BP_C'"));
+		Anim_BP(TEXT("AnimBlueprint'/Game/Character/Animation/Anim_BP.Anim_BP_C'"));
 
 	// Don't rotate the character when the controller rotates. Let that just affect the camera
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 
-	if(SkeletalMesh.Succeeded() && Anim_BP.Succeeded())
-	{
-		// Set the skeletal mesh we had find with FObjectFinder
-		GetMesh()->SetSkeletalMesh(SkeletalMesh.Object);
+	if(!SkeletalMesh.Succeeded() || !Anim_BP.Succeeded())
+		return;
 
-		// Set the Anim_BP we had find with FObjectFinder
-		GetMesh()->SetAnimInstanceClass(Anim_BP.Object);
-		
-		GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -88.f));
-		GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
-		GetMesh()->SetupAttachment(RootComponent);
-		
-		// Create a Spring Arm (pulls in towards the player if there is a collision)
-		SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
-		SpringArm->TargetArmLength = 500.f; // The camera follows at this distance behind the character
-		SpringArm->bUsePawnControlRotation = true; // Rotate the arm based on the controller
-		SpringArm->SetupAttachment(RootComponent);
+	// Set the skeletal mesh we had find with FObjectFinder
+	GetMesh()->SetSkeletalMesh(SkeletalMesh.Object);
 
-		// Create a Camera
-		Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-		// Attach the camera to the end of the Spring Arm and let the arm adjust to match the controller orientation
-		Camera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
-		Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
+	// Set the Anim_BP we had find with FObjectFinder
+	GetMesh()->SetAnimInstanceClass(Anim_BP.Object);
+	
+	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -88.f));
+	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+	GetMesh()->SetupAttachment(RootComponent);
+	
+	// Create a Spring Arm (pulls in towards the player if there is a collision)
+	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
+	SpringArm->TargetArmLength = 500.f; // The camera follows at this distance behind the character
+	SpringArm->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+	SpringArm->SetupAttachment(RootComponent);
 
-		// Configure character movement
-		GetCharacterMovement()->bOrientRotationToMovement = true; // Character turns
-		GetCharacterMovement()->RotationRate = FRotator(0.f, 540.f, 0.f);// at this velocity
-		GetCharacterMovement()->JumpZVelocity = 400.f;
-		GetCharacterMovement()->AirControl = 0.2f;
+	// Create a Camera
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	// Attach the camera to the end of the Spring Arm and let the arm adjust to match the controller orientation
+	Camera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 
-		AutoPossessPlayer = EAutoReceiveInput::Player0;
-	}
+	// Configure character movement
+	GetCharacterMovement()->bOrientRotationToMovement = true; // Character turns
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 540.f, 0.f);// at this velocity
+	GetCharacterMovement()->JumpZVelocity = 400.f;
+	GetCharacterMovement()->AirControl = 0.2f;
+
+	AutoPossessPlayer = EAutoReceiveInput::Player0;
 }
 
 // Called when the game starts or when spawned
@@ -128,7 +128,7 @@ void AMainWarrior::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMainWarrior::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMainWarrior::MoveRight);
 	PlayerInputComponent->BindAxis("CameraPitch", this, &ACharacter::AddControllerPitchInput);// Look up/down with the camera
-	PlayerInputComponent->BindAxis("CameraYaw", this, &ACharacter::AddControllerYawInput);// Rotate the camera around the character
+	PlayerInputComponent->BindAxis("CameraYaw", this, &ACharacter::AddControllerYawInput);// Move the camera around the character
 
 	// ACTION BINDINGS
 
@@ -188,7 +188,7 @@ void AMainWarrior::SetMovementState(EMovementState State)
 
 void AMainWarrior::Attack()
 {
-	if(CombatMontage && !bIsAttacking && CurrentWeapon) // For now the player can attack only with a weapon
+	if(CombatMontage && !bIsAttacking && CurrentWeapon) // For now the player can only attack with a weapon
 	{
 		bIsAttacking = true;
 

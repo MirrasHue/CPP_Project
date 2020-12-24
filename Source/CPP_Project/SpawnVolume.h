@@ -24,10 +24,6 @@ protected:
 	UFUNCTION(BlueprintPure, Category = "Spawner")
 	FVector GetPointToSpawn() const;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 protected:
 
 	UPROPERTY(EditAnywhere, Category = "Spawner")
