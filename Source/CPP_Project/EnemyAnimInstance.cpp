@@ -4,6 +4,7 @@
 #include "EnemyAnimInstance.h"
 #include "Enemy.h"
 
+
 void UEnemyAnimInstance::NativeInitializeAnimation()
 {
     Super::NativeInitializeAnimation();
@@ -27,5 +28,5 @@ void UEnemyAnimInstance::NativeUpdateAnimation(float DeltaTime)
 void UEnemyAnimInstance::AnimNotify_AttackEnd()
 {
     if(Enemy)
-        Enemy->IsAttacking(false);
+        Enemy->SetIsAttacking(false);
 }

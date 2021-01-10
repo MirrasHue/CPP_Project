@@ -3,7 +3,6 @@
 
 #include "EntranceSwitch.h"
 #include "Components/BoxComponent.h"
-#include "Components/StaticMeshComponent.h"
 
 // Sets default values
 AEntranceSwitch::AEntranceSwitch()

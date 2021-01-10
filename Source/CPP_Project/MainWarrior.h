@@ -13,8 +13,8 @@ class AWeapon;
 
 enum class EMovementState : uint8
 {
-	Walking,
-	Sprinting
+	Walk,
+	Sprint
 };
 
 enum class EStaminaState : uint8
@@ -36,12 +36,16 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	// Called for Forward/Backward movement
-	void MoveForward(float Input);
-	// Called for Left/Right movement
-	void MoveRight(float Input);
+	void MoveForward(float Input); // Bound to Forward/Backward input
+	
+	void MoveRight(float Input); // Bound to Left/Right input
 
-	FORCEINLINE void SprintKey(); // Used for both sprint key pressed and released
+	virtual void Jump() override; // For calling the base class Jump just when the jump animation has ended
+
+	UFUNCTION()
+	void OnWarriorLanded(const FHitResult& Hit);
+
+	FORCEINLINE void SprintKey(); // Bound to both sprint key pressed and released
 
 	void SetMovementState(EMovementState State); // Also sets the movement speed based on the state
 	FORCEINLINE void SetStaminaState(EStaminaState State) { StaminaState = State; }
@@ -58,7 +62,11 @@ public:
 	FORCEINLINE void SetCurrentWeapon(AWeapon* Weapon) { CurrentWeapon = Weapon; }
 	FORCEINLINE AWeapon* GetCurrentWeapon() const { return CurrentWeapon; }
 
-	FORCEINLINE void IsAttacking(bool IsAttacking) { bIsAttacking = IsAttacking; }
+	FORCEINLINE void SetIsAttacking(bool IsAttacking) { bIsAttacking = IsAttacking; }
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
+	bool IsAlive() { return bIsAlive; }
 
 protected:
 
@@ -75,14 +83,19 @@ protected:
 	UPROPERTY()
 	AWeapon* CurrentWeapon;
 	
-	EMovementState MovementState = EMovementState::Walking;
+	EMovementState MovementState = EMovementState::Walk;
 	EStaminaState StaminaState = EStaminaState::Normal;
 
 	bool bSprintKeyDown = false;
 
 	bool bIsAttacking = false;
 
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsAlive = true;
+
 public:
+
+	bool bCanJump = true;
 
 //////////////////  Player's Properties  //////////////////
 

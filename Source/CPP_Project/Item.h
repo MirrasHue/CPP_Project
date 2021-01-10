@@ -6,7 +6,6 @@
 #include "GameFramework/Actor.h"
 #include "Item.generated.h"
 
-
 class UBoxComponent;
 class UStaticMeshComponent;
 class UParticleSystemComponent;

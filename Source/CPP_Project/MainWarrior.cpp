@@ -3,12 +3,8 @@
 
 #include "MainWarrior.h"
 #include "Components/CapsuleComponent.h"
-#include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
-#include "UObject/ConstructorHelpers.h"
-#include "GameFramework/Controller.h"
-#include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
@@ -24,26 +20,13 @@ AMainWarrior::AMainWarrior()
 		SkeletalMesh(TEXT("SkeletalMesh'/Game/Character/SkeletalMesh/paladin_j_nordstrom.paladin_j_nordstrom'"));
 
 	static ConstructorHelpers::FObjectFinder<UClass>
-		Anim_BP(TEXT("AnimBlueprint'/Game/Character/Animation/Anim_BP.Anim_BP_C'"));
+		Anim_BP(TEXT("AnimBlueprint'/Game/Character/Animation/MainAnim_BP.MainAnim_BP_C'"));
 
-	// Don't rotate the character when the controller rotates. Let that just affect the camera
+	// Don't rotate the capsule using the controller orientation. Let that just affect the camera
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 
-	if(!SkeletalMesh.Succeeded() || !Anim_BP.Succeeded())
-		return;
-
-	// Set the skeletal mesh we had find with FObjectFinder
-	GetMesh()->SetSkeletalMesh(SkeletalMesh.Object);
-
-	// Set the Anim_BP we had find with FObjectFinder
-	GetMesh()->SetAnimInstanceClass(Anim_BP.Object);
-	
-	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -88.f));
-	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
-	GetMesh()->SetupAttachment(RootComponent);
-	
 	// Create a Spring Arm (pulls in towards the player if there is a collision)
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->TargetArmLength = 500.f; // The camera follows at this distance behind the character
@@ -62,6 +45,19 @@ AMainWarrior::AMainWarrior()
 	GetCharacterMovement()->JumpZVelocity = 400.f;
 	GetCharacterMovement()->AirControl = 0.2f;
 
+	if(!SkeletalMesh.Succeeded() || !Anim_BP.Succeeded())
+		return;
+
+	// Set the skeletal mesh we had find with FObjectFinder
+	GetMesh()->SetSkeletalMesh(SkeletalMesh.Object);
+
+	// Set the Anim_BP we had find with FObjectFinder
+	GetMesh()->SetAnimInstanceClass(Anim_BP.Object);
+	
+	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -88.f));
+	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+	GetMesh()->SetupAttachment(RootComponent);
+
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 }
 
@@ -70,6 +66,7 @@ void AMainWarrior::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	LandedDelegate.AddDynamic(this, &AMainWarrior::OnWarriorLanded);
 }
 
 // Called every frame
@@ -87,7 +84,7 @@ void AMainWarrior::Tick(float DeltaTime)
 		if(bSprintKeyDown)
 		{
 			if(Stamina > 1.f)
-				SetMovementState(EMovementState::Sprinting);
+				SetMovementState(EMovementState::Sprint);
 			else
 				SetStaminaState(EStaminaState::Exhausted);
 
@@ -97,14 +94,14 @@ void AMainWarrior::Tick(float DeltaTime)
 		}
 		else
 		{
-			SetMovementState(EMovementState::Walking);
+			SetMovementState(EMovementState::Walk);
 			Stamina += dtStaminaFill;
 		}
 		break;
 	
 	case EStaminaState::Exhausted
 			:
-		SetMovementState(EMovementState::Walking);
+		SetMovementState(EMovementState::Walk);
 		Stamina += dtStaminaFill;
 
 		if(Stamina > MinSprintStamina)
@@ -132,8 +129,7 @@ void AMainWarrior::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	// ACTION BINDINGS
 
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMainWarrior::Jump);
 
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AMainWarrior::SprintKey);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AMainWarrior::SprintKey);
@@ -144,9 +140,9 @@ void AMainWarrior::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 void AMainWarrior::MoveForward(float Input)
 {
 	// Find out which way is forward
-	if(Controller && Input)
+	if(GetController() && Input)
 	{
-		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator Rotation = GetController()->GetControlRotation();
 		const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
 
 		// Get forward vector
@@ -159,9 +155,9 @@ void AMainWarrior::MoveForward(float Input)
 void AMainWarrior::MoveRight(float Input)
 {
 	// Find out which way is right
-	if(Controller && Input)
+	if(GetController() && Input)
 	{
-		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator Rotation = GetController()->GetControlRotation();
 		const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
 
 		// Get right vector
@@ -169,6 +165,23 @@ void AMainWarrior::MoveRight(float Input)
 
 		AddMovementInput(Direction, Input);
 	}
+}
+
+void AMainWarrior::Jump()
+{
+	if(bCanJump)
+	{
+		Super::Jump();
+		bCanJump = false; // It's set back to true on this character's AnimInstance
+		// Plays better with the jump animation, without adjustment the feet was way higher than the capsule's bottom
+		GetCapsuleComponent()->SetCapsuleHalfHeight(50.f);
+	}
+}
+
+void AMainWarrior::OnWarriorLanded(const FHitResult& Hit)
+{
+	GetCapsuleComponent()->SetCapsuleHalfHeight(88.f); // Set it back to the normal half height when landing
+	ResetJumpState();
 }
 
 void AMainWarrior::SprintKey()
@@ -180,7 +193,7 @@ void AMainWarrior::SetMovementState(EMovementState State)
 {
 	MovementState = State;
 
-	if(State == EMovementState::Sprinting)
+	if(State == EMovementState::Sprint)
 		GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
 	else
 		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
@@ -188,13 +201,39 @@ void AMainWarrior::SetMovementState(EMovementState State)
 
 void AMainWarrior::Attack()
 {
-	if(CombatMontage && !bIsAttacking && CurrentWeapon) // For now the player can only attack with a weapon
+	APlayerController* Controller = Cast<APlayerController>(GetController());
+
+	if(!Controller || !CombatMontage || bIsAttacking || !CurrentWeapon) // The player can only attack with a weapon
+		return;
+	
+	bIsAttacking = true; // It's set back to false on this character's AnimInstance
+
+	FString AttackSection;
+
+	if(Controller->WasInputKeyJustPressed(EKeys::LeftMouseButton))
 	{
-		bIsAttacking = true;
-
-		// Currently there are 2 animations for attack
-		FString AttackSection = "Attack_" + FString::FromInt(FMath::RandRange(1, 2));
-
-		PlayAnimMontage(CombatMontage, 1.f, FName(*AttackSection));
+		AttackSection = "LightAttack";
+		Stamina -= 10.f;
 	}
+	else
+	if(Controller->WasInputKeyJustPressed(EKeys::RightMouseButton))
+	{
+		AttackSection = "HeavyAttack";
+		Stamina -= 15.f;
+	}
+	
+	PlayAnimMontage(CombatMontage, 1.f, FName(*AttackSection));
+}
+
+float AMainWarrior::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	Health -= DamageAmount;
+
+	if(Health <= 0.f)
+	{
+		bIsAlive = false;
+		DisableInput(nullptr);
+	}
+
+	return DamageAmount;
 }

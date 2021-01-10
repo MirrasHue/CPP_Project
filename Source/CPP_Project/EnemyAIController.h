@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "AIController.h"
 #include "Perception/AIPerceptionTypes.h"
-#include "Navigation/PathFollowingComponent.h"
 #include "EnemyAIController.generated.h"
 
 class UAIPerceptionComponent;
@@ -30,9 +29,6 @@ protected:
 
 	void MoveToTarget(class APawn* Target);
 
-	// Used for determining the attack logic
-	void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result);
-
 	// Custom update function for checking changes within AI's sight, given that AIPerception doesn't have one.
 	// It will be called every few seconds, specified by CheckInterval.
 	UFUNCTION()
@@ -49,7 +45,7 @@ protected:
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "0.5"), Category = "AI")
 	float CheckInterval = 1.f; // Amount of time (in seconds) between checking for changes within AI's sight.
 
-	FTimerHandle TimerHandle;
+	FTimerHandle CheckIntervalTimer;
 
 	bool bPlayerPerceived = false;
 

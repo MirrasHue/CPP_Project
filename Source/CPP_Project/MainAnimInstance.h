@@ -4,27 +4,38 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
-#include "MyAnimInstance.generated.h"
+#include "MainAnimInstance.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
-class CPP_PROJECT_API UMyAnimInstance : public UAnimInstance
+class CPP_PROJECT_API UMainAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
-
+	
 protected:
 
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaTime) override;
 
+	/**
+	 * Functions called by the engine whenever those notifiers are reached in our CombatMontage	
+	 */
 	UFUNCTION()
-	void AnimNotify_AttackEnd(); // Called by the engine whenever this notifier is reached in our CombatMontage
+	void AnimNotify_AttackEnd();
+
+	UFUNCTION()
+	void AnimNotify_EnableWeaponHitbox();
+
+	UFUNCTION()
+	void AnimNotify_DisableWeaponHitbox();
+
+	UFUNCTION()
+	void AnimNotify_JumpEnd();
+	// end notifiers
 
 protected:
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	class AMainWarrior* Player;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")

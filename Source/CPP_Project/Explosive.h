@@ -6,9 +6,7 @@
 #include "Item.h"
 #include "Explosive.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class CPP_PROJECT_API AExplosive : public AItem
 {

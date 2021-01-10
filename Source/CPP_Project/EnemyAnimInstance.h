@@ -6,9 +6,7 @@
 #include "Animation/AnimInstance.h"
 #include "EnemyAnimInstance.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class CPP_PROJECT_API UEnemyAnimInstance : public UAnimInstance
 {
@@ -25,9 +23,9 @@ protected:
 
 protected:
 
-	UPROPERTY(BlueprintReadOnly, Category = "AI")
+	UPROPERTY(BlueprintReadOnly)
 	class AEnemy* Enemy;
 
-	UPROPERTY(BlueprintReadOnly, Category = "AI")
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	float MovementSpeed;
 };

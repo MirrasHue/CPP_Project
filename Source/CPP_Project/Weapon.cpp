@@ -2,14 +2,31 @@
 
 
 #include "Weapon.h"
-#include "Components/SkeletalMeshComponent.h"
+#include "Components/BoxComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "MainWarrior.h"
+#include "Enemy.h"
+
 
 AWeapon::AWeapon()
 {
     Weapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
     Weapon->SetupAttachment(RootComponent);
+
+    Hitbox = CreateDefaultSubobject<UBoxComponent>(TEXT("Hitbox"));
+    Hitbox->SetupAttachment(Weapon);
+
+    Hitbox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    Hitbox->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	Hitbox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	Hitbox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+}
+
+void AWeapon::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	Hitbox->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnWeaponHit);
 }
 
 void AWeapon::EquipOn(AMainWarrior* Player)
@@ -40,9 +57,48 @@ void AWeapon::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherA
     }
 }
 
-void AWeapon::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void AWeapon::OnWeaponHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    Super::OnEndOverlap(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex);
+    AEnemy* Enemy = Cast<AEnemy>(OtherActor);
 
-	
+    if(!Enemy || bHitCounted)
+        return;
+
+    bHitCounted = true;
+
+    ApplyDamageTo(Enemy);
+}
+
+void AWeapon::ApplyDamageTo(APawn* Pawn)
+{
+    ACharacter* Player = GetWorld()->GetFirstPlayerController()->GetCharacter();
+
+    if(!Player)
+        return;
+
+    // See which attack animation is playing, so that we can determine the appropriate damage 
+
+    FName PlayerAnimSection = Player->GetMesh()->GetAnimInstance()->Montage_GetCurrentSection();
+
+    if(PlayerAnimSection == FName("LightAttack"))
+    {
+        Pawn->TakeDamage(LightAttackDamage, FDamageEvent(), Player->GetController(), this);
+    }
+    else
+    if(PlayerAnimSection == FName("HeavyAttack"))
+    {
+        Pawn->TakeDamage(HeavyAttackDamage, FDamageEvent(), Player->GetController(), this);
+    }
+}
+
+void AWeapon::EnableHitbox() 
+{
+    Hitbox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
+
+void AWeapon::DisableHitbox()
+{
+    Hitbox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+    bHitCounted = false;
 }

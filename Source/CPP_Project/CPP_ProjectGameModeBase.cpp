@@ -2,7 +2,6 @@
 
 
 #include "CPP_ProjectGameModeBase.h"
-#include "UObject/ConstructorHelpers.h"
 #include "Blueprint/UserWidget.h"
 
 

@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "BlueprintFunctionUtils.generated.h"
+#include "PlayerStats.generated.h"
 
 
 UCLASS()
-class CPP_PROJECT_API UBlueprintFunctionUtils : public UBlueprintFunctionLibrary
+class CPP_PROJECT_API UPlayerStats : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
-
+	
 public:
 
 	// Called on MainWarrior_BP's event graph(Begin Play), given that there's no easy way to get a reference to the actual player from here
