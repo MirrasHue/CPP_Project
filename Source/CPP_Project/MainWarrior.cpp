@@ -174,13 +174,13 @@ void AMainWarrior::Jump()
 		Super::Jump();
 		bCanJump = false; // It's set back to true on this character's AnimInstance
 		// Plays better with the jump animation, without adjustment the feet was way higher than the capsule's bottom
-		GetCapsuleComponent()->SetCapsuleHalfHeight(50.f);
+		GetCapsuleComponent()->SetCapsuleHalfHeight(55.f, false);
 	}
 }
 
 void AMainWarrior::OnWarriorLanded(const FHitResult& Hit)
 {
-	GetCapsuleComponent()->SetCapsuleHalfHeight(88.f); // Set it back to the normal half height when landing
+	GetCapsuleComponent()->SetCapsuleHalfHeight(88.f, false); // Set it back to the normal half height when landing
 	ResetJumpState();
 }
 

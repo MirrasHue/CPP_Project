@@ -8,7 +8,7 @@
 
 using PS = UPlayerStats; // Just for short
 
-AMainWarrior* PS::Player = nullptr;
+const AMainWarrior* PS::Player = nullptr;
 
 void UPlayerStats::InitPlayerRef(UObject* WorldContextObject)
 {

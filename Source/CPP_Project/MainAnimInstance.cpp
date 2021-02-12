@@ -60,5 +60,5 @@ void UMainAnimInstance::AnimNotify_JumpEnd()
     if(!Player)
         return;
 
-    Player->bCanJump = true;
+    Player->SetCanJump(true);
 }

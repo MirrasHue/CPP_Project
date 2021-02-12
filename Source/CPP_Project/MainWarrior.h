@@ -64,6 +64,8 @@ public:
 
 	FORCEINLINE void SetIsAttacking(bool IsAttacking) { bIsAttacking = IsAttacking; }
 
+	FORCEINLINE void SetCanJump(bool CanJump) { bCanJump = CanJump; }
+
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 	bool IsAlive() { return bIsAlive; }
@@ -90,18 +92,12 @@ protected:
 
 	bool bIsAttacking = false;
 
+	bool bCanJump = true;
+
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsAlive = true;
 
-public:
-
-	bool bCanJump = true;
-
-//////////////////  Player's Properties  //////////////////
-
-	/*
-		Add Getters and Setters
-	*/
+	//////////////////  Player's Properties  //////////////////
 
 	UPROPERTY(EditAnywhere, Category = "Player | Health")
 	float Health = 100.f;
@@ -114,6 +110,8 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Player | Stamina")
 	float MaxStamina = 100.f;
+
+	friend class UPlayerStats;
 
 	UPROPERTY(EditAnywhere, Category = "Player | Stamina")
 	float StaminaDrainRate = 10.f; // units / s

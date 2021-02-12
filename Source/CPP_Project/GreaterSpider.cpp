@@ -59,8 +59,6 @@ void AGreaterSpider::OnLeftClawHit(UPrimitiveComponent* OverlappedComp, AActor* 
     bHitCounted = true;
 
     ApplyDamageTo(Player);
-
-    UE_LOG(LogTemp, Warning, TEXT("PLAYER HEALTH = %f"), Player->Health);
 }
 
 void AGreaterSpider::OnRightClawHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -73,8 +71,6 @@ void AGreaterSpider::OnRightClawHit(UPrimitiveComponent* OverlappedComp, AActor*
     bHitCounted = true;
 
     ApplyDamageTo(Player);
-
-    UE_LOG(LogTemp, Warning, TEXT("PLAYER HEALTH = %f"), Player->Health);
 }
 
 void AGreaterSpider::EnableClawHitbox()

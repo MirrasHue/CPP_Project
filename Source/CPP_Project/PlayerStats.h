@@ -6,6 +6,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "PlayerStats.generated.h"
 
+class AMainWarrior;
 
 UCLASS()
 class CPP_PROJECT_API UPlayerStats : public UBlueprintFunctionLibrary
@@ -26,5 +27,5 @@ public:
 
 public:
 
-	static class AMainWarrior* Player;
+	static const AMainWarrior* Player;
 };
