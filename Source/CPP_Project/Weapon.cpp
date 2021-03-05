@@ -29,7 +29,7 @@ void AWeapon::BeginPlay()
 	Hitbox->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnWeaponHit);
 }
 
-void AWeapon::EquipOn(AMainWarrior* Player)
+void AWeapon::EquipOn(AMainWarrior* Player, FName SocketName)
 {
     if(!Player)
         return;
@@ -38,23 +38,27 @@ void AWeapon::EquipOn(AMainWarrior* Player)
     Weapon->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
     Weapon->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore); // Ignore collision with the player as well
 
-    Weapon->SetSimulatePhysics(false); // For when it is being attached to player
+    Weapon->SetSimulatePhysics(false); // For when it is being attached to the player and not trigger OnBeginOverlap again 
 
-    const USkeletalMeshSocket* RightHandSocket = Player->GetMesh()->GetSocketByName("RightHandSocket");
+    const USkeletalMeshSocket* WeaponSocket = Player->GetMesh()->GetSocketByName(SocketName);
 
-    if(RightHandSocket)
-        RightHandSocket->AttachActor(this, Player->GetMesh());
+    if(WeaponSocket)
+        WeaponSocket->AttachActor(this, Player->GetMesh());
+
+    Player->EquipWeapon(this);
 }
 
 void AWeapon::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
     Super::OnBeginOverlap(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 
-    if(AMainWarrior* Player = Cast<AMainWarrior>(OtherActor))
-    {
-        EquipOn(Player);
-        Player->SetCurrentWeapon(this);
-    }
+    AMainWarrior* Player = Cast<AMainWarrior>(OtherActor);
+
+    if(!Player)
+        return;
+
+    if(!Player->GetCurrentWeapon())
+        EquipOn(Player, "RightHandSocket");
 }
 
 void AWeapon::OnWeaponHit(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

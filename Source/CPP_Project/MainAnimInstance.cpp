@@ -28,7 +28,7 @@ void UMainAnimInstance::NativeUpdateAnimation(float DeltaTime)
 
     bInAir = Player->GetMovementComponent()->IsFalling();
 
-    bIsArmed = (Player->GetCurrentWeapon() != nullptr);
+    bIsWeaponEquipped = Player->IsWeaponEquipped();
 }
 
 void UMainAnimInstance::AnimNotify_AttackEnd()

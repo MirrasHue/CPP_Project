@@ -52,6 +52,8 @@ protected:
 
 	void Attack();
 
+	void EquipUnequipWeapon();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -59,8 +61,10 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	FORCEINLINE void SetCurrentWeapon(AWeapon* Weapon) { CurrentWeapon = Weapon; }
+	FORCEINLINE void EquipWeapon(AWeapon* Weapon) { CurrentWeapon = Weapon; bIsWeaponEquipped = true; }
 	FORCEINLINE AWeapon* GetCurrentWeapon() const { return CurrentWeapon; }
+
+	FORCEINLINE bool IsWeaponEquipped() const { return bIsWeaponEquipped; };
 
 	FORCEINLINE void SetIsAttacking(bool IsAttacking) { bIsAttacking = IsAttacking; }
 
@@ -68,7 +72,7 @@ public:
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
-	bool IsAlive() { return bIsAlive; }
+	FORCEINLINE bool IsAlive() const { return bIsAlive; }
 
 protected:
 
@@ -89,6 +93,8 @@ protected:
 	EStaminaState StaminaState = EStaminaState::Normal;
 
 	bool bSprintKeyDown = false;
+
+	bool bIsWeaponEquipped = false;
 
 	bool bIsAttacking = false;
 
@@ -111,8 +117,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Player | Stamina")
 	float MaxStamina = 100.f;
 
-	friend class UPlayerStats;
-
 	UPROPERTY(EditAnywhere, Category = "Player | Stamina")
 	float StaminaDrainRate = 10.f; // units / s
 
@@ -127,4 +131,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Player | Movement")
 	float SprintSpeed = 600.f; // cm / s
+
+
+	friend class UPlayerStats;
 };

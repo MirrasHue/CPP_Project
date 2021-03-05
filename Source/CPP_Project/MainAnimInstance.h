@@ -45,5 +45,5 @@ protected:
 	bool bInAir;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-	bool bIsArmed;
+	bool bIsWeaponEquipped;
 };

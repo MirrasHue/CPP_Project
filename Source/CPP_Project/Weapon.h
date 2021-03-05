@@ -22,7 +22,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	void EquipOn(class AMainWarrior* Player);
+	void EquipOn(class AMainWarrior* Player, FName SocketName);
 
 	virtual void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 
@@ -52,4 +52,7 @@ protected:
 	float HeavyAttackDamage = 25.f;
 
 	bool bHitCounted = false; // Just to make sure that sword swing counts only once
+	
+
+	friend class AMainWarrior;
 };

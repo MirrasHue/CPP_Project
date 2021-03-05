@@ -6,6 +6,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Weapon.h"
 
 // Sets default values
 AMainWarrior::AMainWarrior()
@@ -135,6 +136,8 @@ void AMainWarrior::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AMainWarrior::SprintKey);
 
 	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &AMainWarrior::Attack);
+
+	PlayerInputComponent->BindAction("Equip/Unequip Weapon", IE_Pressed, this, &AMainWarrior::EquipUnequipWeapon);
 }
 
 void AMainWarrior::MoveForward(float Input)
@@ -203,7 +206,7 @@ void AMainWarrior::Attack()
 {
 	APlayerController* Controller = Cast<APlayerController>(GetController());
 
-	if(!Controller || !CombatMontage || bIsAttacking || !CurrentWeapon) // The player can only attack with a weapon
+	if(!Controller || !CombatMontage || bIsAttacking || !bIsWeaponEquipped) // The player can only attack with a weapon
 		return;
 	
 	bIsAttacking = true; // It's set back to false on this character's AnimInstance
@@ -223,6 +226,27 @@ void AMainWarrior::Attack()
 	}
 	
 	PlayAnimMontage(CombatMontage, 1.f, FName(*AttackSection));
+}
+
+void AMainWarrior::EquipUnequipWeapon()
+{
+	if(!CurrentWeapon || bIsAttacking)
+		return;
+
+	UE_LOG(LogTemp, Warning, TEXT("Equip / Unequip Weapon"));
+
+	if(bIsWeaponEquipped) // Unequip
+	{
+		CurrentWeapon->EquipOn(this, "BackSocket");
+
+		bIsWeaponEquipped = false;
+	}
+	else // Equip
+	{
+		CurrentWeapon->EquipOn(this, "RightHandSocket");
+
+		bIsWeaponEquipped = true;
+	}
 }
 
 float AMainWarrior::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
