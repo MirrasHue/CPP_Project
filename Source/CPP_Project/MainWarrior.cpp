@@ -75,6 +75,12 @@ void AMainWarrior::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	FVector Vel = GetVelocity();
+	float XYSpeed = FVector(Vel.X, Vel.Y, 0.f).Size();
+
+	// The player should not be able to rotate too quickly when sprinting
+	GetCharacterMovement()->RotationRate = (XYSpeed > WalkSpeed) ? FRotator(0.f, 350.f, 0.f) : FRotator(0.f, 540.f, 0.f);
+
 	float dtStaminaDrain = StaminaDrainRate * DeltaTime;
 	float dtStaminaFill = StaminaFillRate * DeltaTime;
 
@@ -89,9 +95,8 @@ void AMainWarrior::Tick(float DeltaTime)
 			else
 				SetStaminaState(EStaminaState::Exhausted);
 
-			// Decrease the stamina based on a minimum speed
-			FVector Vel = GetVelocity();
-			Stamina -= FVector(Vel.X, Vel.Y, 0.f).Size() > WalkSpeed ? dtStaminaDrain : -dtStaminaFill;
+			// Decrease the stamina only if moving faster enough, otherwise increase it
+			Stamina -= (XYSpeed > WalkSpeed) ? dtStaminaDrain : -dtStaminaFill;
 		}
 		else
 		{

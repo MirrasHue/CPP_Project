@@ -18,7 +18,7 @@ protected:
 	virtual void NativeUpdateAnimation(float DeltaTime) override;
 
 	/**
-	 * Functions called by the engine whenever those notifiers are reached in our CombatMontage	
+	 * Functions called by the engine whenever those notifiers are reached in our player animations
 	 */
 	UFUNCTION()
 	void AnimNotify_AttackEnd();
